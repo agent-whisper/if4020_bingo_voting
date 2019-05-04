@@ -54,6 +54,9 @@ class PedersenBVM:
         return vote_response
 
     def verify_vote(self, commitment, vote, r_values):
+        if not (isinstance(commitment, (int)) and isinstance(vote, (int)) \
+            and isinstance(r_values, (int, list))):
+            raise TypeError('Invalid commitment, vote, or r type!')
         return Pedersen.open(commitment, vote, r_values, self.param)
 
     def get_candidate_labels(self):
@@ -132,6 +135,9 @@ class PedersenBVM:
     def get_ballots(self):
         return self.ballots
 
+    def get_vote_count(self):
+        return (self.num_of_received_votes, self.num_of_voters)
+        
     def label_exists(self, label):
         return label.upper() in self.candidate_data
 
