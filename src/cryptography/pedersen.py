@@ -35,11 +35,14 @@ class Pedersen:
         return addCm
 
     @staticmethod
-    def open(c, m, l_r, param):
+    def open(c, m, r, param):
         q, g, h = Pedersen.parse_param(param)
-        sum = 0
-        for x in l_r:
-            sum += x
+        if r is list:
+            sum = 0
+            for x in r:
+                sum += x
+        else:
+            sum = r
         res = (pow(g, m, q) * pow(h, sum, q) % q)
         return c == res
 
