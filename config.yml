@@ -1,0 +1,9 @@
+bvm:
+    security: 80
+    num_of_voters: 10
+    candidate_labels:
+      - "Today"
+      - "Tomorrow"
+      - "Next week"
+ip: '127.0.0.1'
+port: '9000'
