@@ -1,3 +1,4 @@
+#TODO: Authorization for some request
 import json
 import yaml
 
@@ -132,7 +133,7 @@ def get_fresh_votes_commitments():
         'status': OK,
     })
 
-@server.route('/vote', methods=['POST'])
+@server.route('/vote/collect', methods=['POST'])
 def vote():
     picked_candidate = flask.request.form['pick']
     try:
@@ -143,6 +144,28 @@ def vote():
             'description': str(e),
         })
     return json.dumps(vote_response)
+
+@server.route('/vote/verify', methods=['POST'])
+def verify_vote():
+    try:
+        m = int(flask.request.form['vote'])
+        c = int(flask.request.form['commitment'])
+        r = int(flask.request.form['r'])
+        verify_result = bvm_machine.verify_vote(c, m, r)
+    except KeyError as e:
+        return json.dumps({
+            'status': BAD_REQUEST,
+            'description': 'Bad post request: ' + str(e),
+        })
+    except TypeError as e:
+        return json.dumps({
+            'status': BAD_REQUEST,
+            'description': 'Bad post request: ' + str(e),
+        })
+    return json.dumps({
+        'data': verify_result,
+        'status': OK,
+    })
 
 @server.route('/ballots/')
 def get_ballots():
@@ -157,8 +180,10 @@ def get_ballots():
 @server.route('/poll/result/')
 def get_poll_result():
     data = bvm_machine.get_poll_result()
+    vote_collected, registered_voter = bvm_machine.get_vote_count()
     return json.dumps({
         'data': data,
+        'received_vote_count': vote_collected,
+        'registered_voter_count': registered_voter,
         'status': OK,
     })
-    
