@@ -1,0 +1,17 @@
+<title>Bingo Voting Board Client</title>
+<body>
+    <h1>Poll Result</h1>
+    <h2>Tally</h2>
+    <div>
+        Recorded votes count: {{received_votes_count}} / {{registered_votes_count}}<br>
+        <br>
+        {% for label, votes in poll_data.items() %}
+            {{label}}: {{votes}}<br>
+        {% endfor %}
+    </div>
+    <br>
+    <form>
+        <button type="submit" formaction={{refresh_uri}}>Refresh</button>
+        <button type="submit" formaction={{home_uri}}>Back to menu</button><br>
+    </form>
+</body>
