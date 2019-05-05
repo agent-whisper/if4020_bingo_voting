@@ -51,12 +51,13 @@ def show_current_board():
 @board_client.route('/board/result/')
 def show_result():
     poll_result = bvm_board.get_poll_result()
-    unused_dummy_data = None
+    unused_dummy_votes = bvm_board.publish_unused_dummy_votes()
     return flask.render_template(
         'board/poll_result.html',
         received_votes_count=poll_result['received_vote_count'],
         registered_votes_count=poll_result['registered_voter_count'],
         poll_data=poll_result['data'],
+        unused_dummy_vote=unused_dummy_votes['data'],
         home_uri=flask.url_for('index'),
         refresh_uri=flask.url_for('show_result'),
     )
