@@ -24,8 +24,13 @@ class PedersenBVM:
         self.num_of_received_votes = 0
 
     def vote(self, picked_candidate):
+        vote_response = {}
         if self.vote_is_full():
-            raise ValueError(self.VOTE_IS_FULL)
+            vote_response['ballot'] = {}
+            vote_response['description'] = 'Vote is full'
+            vote_response['accepted'] = False
+            vote_response['id'] = -1
+            return vote_response
         picked_candidate = picked_candidate.upper()
         if not self.label_exists(picked_candidate):
             raise ValueError(self.CANDIDATE_NOT_FOUND(picked_candidate))
