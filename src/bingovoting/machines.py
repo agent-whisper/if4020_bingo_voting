@@ -79,12 +79,17 @@ class PedersenBVM:
             for dv in self.candidate_data[label]['dummy_votes']:
                 if dv[3] is self.UNUSED:
                     unused_dv += 1
-            print(label, unused_dv)
             tally = unused_dv - non_voters
             poll_result[label] = tally
         return poll_result
 
-    def get_candidate_dummy_vote(self, label, status='all'):
+    def get_all_dummy_votes(self, status='unused'):
+        response = {}
+        for c in self.candidate_data:
+            response[c] = self.get_candidate_dummy_votes(c, status=status)
+        return response
+
+    def get_candidate_dummy_votes(self, label, status='unused'):
         label = label.upper()
         if not self.label_exists(label):
             raise ValueError(self.CANDIDATE_NOT_FOUND(label))
@@ -105,7 +110,13 @@ class PedersenBVM:
         else:
             raise ValueError(self.INVALID_DUMMY_TYPE(status))
 
-    def get_candidate_commitments(self, label, status='all'):
+    def get_all_candidate_commitments(self, status='unused'):
+        response = {}
+        for c in self.candidate_data:
+            response[c] = self.get_candidate_commitments(c, status=status)
+        return response
+
+    def get_candidate_commitments(self, label, status='unused'):
         label = label.upper()
         if not self.label_exists(label):
             raise ValueError(self.CANDIDATE_NOT_FOUND(label))
