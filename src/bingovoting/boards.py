@@ -5,8 +5,8 @@ class PedersenBoard:
     PING_URI = '/status'
     POLL_RESULT_URI = '/poll/result/'
     FRESH_COMMITMENTS_URI = '/fresh_votes/commitments/'
-    UNUSED_DUMMY_VOTES_URI = '/candidates/dummy_votes/'
-    UNUSED_DUMMY_COMMITMENTS_URI = '/candidates/commitments/'
+    DUMMY_VOTES_URI = '/candidates/dummy_votes/'
+    DUMMY_COMMITMENTS_URI = '/candidates/commitments/'
     BALLOTS_URI = '/ballots/'
 
     def __init__(self, config):
@@ -34,11 +34,19 @@ class PedersenBoard:
         return response.json()
 
     def get_all_unused_dummy_votes(self):
-        response = requests.get(self._bvm_uri(self.UNUSED_DUMMY_VOTES_URI))
+        response = requests.get(self._bvm_uri(self.DUMMY_VOTES_URI))
         return response.json()
 
-    def get_all_unused_commitments(self):
-        response = requests.get(self._bvm_uri(self.UNUSED_DUMMY_COMMITMENTS_URI))
+    def get_all_dummy_votes(self):
+        response = requests.get(self._bvm_uri(self.DUMMY_VOTES_URI+'all'))
+        return response.json()
+
+    def get_all_unused_dummy_commitments(self):
+        response = requests.get(self._bvm_uri(self.DUMMY_COMMITMENTS_URI))
+        return response.json()
+
+    def get_all_dummy_commitments(self):
+        response = requests.get(self._bvm_uri(self.DUMMY_COMMITMENTS_URI+'all'))
         return response.json()
 
     def get_ballots(self):
