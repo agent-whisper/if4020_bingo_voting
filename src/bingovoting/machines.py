@@ -70,10 +70,35 @@ class PedersenBVM:
             candidate_labels.append(label)
         return candidate_labels
 
-    def get_candidate_data(self, label):
+    def publish_unused_dummy(self):
+        data = {}
+        for label in self.candidate_data:
+            data[label] = []
+            for dv in self.candidate_data[label]['dummy_votes']:
+                if dv[3] == self.UNUSED:
+                    data[label].append((dv[0], dv[1], dv[2]))
+        return data
+
+    def get_candidate_vote_and_commit(self, label, status='unused'):
+        label = label.upper()
         if not self.label_exists(label):
             raise ValueError(self.CANDIDATE_NOT_FOUND(label))
-        return self.candidate_data[label.upper()]
+        if status == 'all':
+            return [(dv[0], dv[1]) for dv in self.candidate_data[label]['dummy_votes']]
+        elif status == 'used':
+            response = []
+            for dv in self.candidate_data[label]['dummy_votes']:
+                if dv[3] == self.USED:
+                    response.append((dv[0], dv[1]))
+            return response
+        elif status == 'unused':
+            response = []
+            for dv in self.candidate_data[label]['dummy_votes']:
+                if dv[3] == self.UNUSED:
+                    response.append((dv[0], dv[1]))
+            return response
+        else:
+            raise ValueError(self.INVALID_DUMMY_TYPE(status))
 
     def get_poll_result(self):
         poll_result = {}
