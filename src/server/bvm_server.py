@@ -3,6 +3,7 @@ import json
 import yaml
 
 from src.bingovoting.machines import PedersenBVM
+from src.cryptography.rsa import RSACipher
 import flask
 
 server = flask.Flask(__name__)
@@ -32,15 +33,6 @@ def ping():
     return json.dumps({
         'status': OK,
         'description': 'BVM server is running',
-    })
-
-@server.route('/candidates/')
-def get_complete_candidate_data():
-    data = bvm_machine.get_candidate_data()
-    return json.dumps({
-        'data': data,
-        'count': len(data),
-        'status': OK
     })
 
 @server.route('/candidates/labels/')
@@ -87,7 +79,7 @@ def get_all_dummy_commitments(status):
 @server.route('/candidates/<string:label>/')
 def get_candidate_data(label):
     try:
-        data = bvm_machine.get_candidate_data(label)
+        data = bvm_machine.get_candidate_vote_and_commit(label)
     except ValueError as e:
         return json.dumps({
             'status': NOT_FOUND,
