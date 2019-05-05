@@ -19,7 +19,6 @@ class PedersenBVM:
         self.param = Pedersen.generate_param(security)
         self._generate_dummy_votes()
         self.candidate_data = self._setup_candidates(config['candidate_labels'])
-        self.fresh_votes = []
         self.ballots = []
         self.num_of_received_votes = 0
 
@@ -37,12 +36,12 @@ class PedersenBVM:
 
         new_number = self._generate_fresh_random_number()
         fresh_vote = self._commit_vote(new_number)
-        self.fresh_votes.append(fresh_vote)
+        self.candidate_data[picked_candidate]['fresh'].append(fresh_vote)
         new_ballot = {}
         new_ballot['content'] = {}
         for label in self.candidate_data:
             if label == picked_candidate:
-                new_ballot['content'][label] = fresh_vote[1]
+                new_ballot['content'][label] = fresh_vote[0]
                 continue
             new_ballot['content'][label] = self._pick_random_dummy_vote(label)
 
@@ -64,41 +63,14 @@ class PedersenBVM:
             raise TypeError('Invalid commitment, vote, or r type!')
         return Pedersen.open(commitment, vote, r_values, self.param)
 
-    def get_candidate_labels(self):
-        candidate_labels = []
-        for label in self.candidate_data:
-            candidate_labels.append(label)
-        return candidate_labels
-
     def publish_unused_dummy(self):
         data = {}
         for label in self.candidate_data:
             data[label] = []
-            for dv in self.candidate_data[label]['dummy_votes']:
+            for dv in self.candidate_data[label]['dummy']:
                 if dv[3] == self.UNUSED:
                     data[label].append((dv[0], dv[1], dv[2]))
         return data
-
-    def get_candidate_vote_and_commit(self, label, status='unused'):
-        label = label.upper()
-        if not self.label_exists(label):
-            raise ValueError(self.CANDIDATE_NOT_FOUND(label))
-        if status == 'all':
-            return [(dv[0], dv[1]) for dv in self.candidate_data[label]['dummy_votes']]
-        elif status == 'used':
-            response = []
-            for dv in self.candidate_data[label]['dummy_votes']:
-                if dv[3] == self.USED:
-                    response.append((dv[0], dv[1]))
-            return response
-        elif status == 'unused':
-            response = []
-            for dv in self.candidate_data[label]['dummy_votes']:
-                if dv[3] == self.UNUSED:
-                    response.append((dv[0], dv[1]))
-            return response
-        else:
-            raise ValueError(self.INVALID_DUMMY_TYPE(status))
 
     def get_poll_result(self):
         poll_result = {}
@@ -106,12 +78,39 @@ class PedersenBVM:
         for label in self.candidate_data:
             label = label.upper()
             unused_dv = 0
-            for dv in self.candidate_data[label]['dummy_votes']:
+            for dv in self.candidate_data[label]['dummy']:
                 if dv[3] is self.UNUSED:
                     unused_dv += 1
             tally = unused_dv - non_voters
             poll_result[label] = tally
         return poll_result
+
+    def get_candidate_labels(self):
+        candidate_labels = []
+        for label in self.candidate_data:
+            candidate_labels.append(label)
+        return candidate_labels
+
+    def get_candidate_dummies(self, label, status='unused'):
+        label = label.upper()
+        if not self.label_exists(label):
+            raise ValueError(self.CANDIDATE_NOT_FOUND(label))
+        if status == 'all':
+            return [(dv[0], dv[1]) for dv in self.candidate_data[label]['dummy']]
+        elif status == 'used':
+            response = []
+            for dv in self.candidate_data[label]['dummy']:
+                if dv[3] == self.USED:
+                    response.append((dv[0], dv[1]))
+            return response
+        elif status == 'unused':
+            response = []
+            for dv in self.candidate_data[label]['dummy']:
+                if dv[3] == self.UNUSED:
+                    response.append((dv[0], dv[1]))
+            return response
+        else:
+            raise ValueError(self.INVALID_DUMMY_TYPE(status))
 
     def get_all_dummy_votes(self, status='unused'):
         response = {}
@@ -124,54 +123,66 @@ class PedersenBVM:
         if not self.label_exists(label):
             raise ValueError(self.CANDIDATE_NOT_FOUND(label))
         if status == 'all':
-            return [dv[0] for dv in self.candidate_data[label]['dummy_votes']]
+            return [dv[0] for dv in self.candidate_data[label]['dummy']]
         elif status == 'used':
             response = []
-            for dv in self.candidate_data[label]['dummy_votes']:
+            for dv in self.candidate_data[label]['dummy']:
                 if dv[3] == self.USED:
                     response.append(dv[0])
             return response
         elif status == 'unused':
             response = []
-            for dv in self.candidate_data[label]['dummy_votes']:
+            for dv in self.candidate_data[label]['dummy']:
                 if dv[3] == self.UNUSED:
                     response.append(dv[0])
             return response
         else:
             raise ValueError(self.INVALID_DUMMY_TYPE(status))
 
-    def get_all_candidate_commitments(self, status='unused'):
+    def get_all_dummy_commitments(self, status='unused'):
         response = {}
         for c in self.candidate_data:
-            response[c] = self.get_candidate_commitments(c, status=status)
+            response[c] = self.get_dummy_commitments(c, status=status)
         return response
 
-    def get_candidate_commitments(self, label, status='unused'):
+    def get_dummy_commitments(self, label, status='unused'):
         label = label.upper()
         if not self.label_exists(label):
             raise ValueError(self.CANDIDATE_NOT_FOUND(label))
         if status == 'all':
-            return [dv[1] for dv in self.candidate_data[label]['dummy_votes']]
+            return [dv[1] for dv in self.candidate_data[label]['dummy']]
         elif status == 'used':
             response = []
-            for dv in self.candidate_data[label]['dummy_votes']:
+            for dv in self.candidate_data[label]['dummy']:
                 if dv[3] == self.USED:
                     response.append(dv[1])
             return response
         elif status == 'unused':
             response = []
-            for dv in self.candidate_data[label]['dummy_votes']:
+            for dv in self.candidate_data[label]['dummy']:
                 if dv[3] == self.UNUSED:
                     response.append(dv[1])
             return response
         else:
             raise ValueError(self.INVALID_DUMMY_TYPE(status))
 
-    def get_fresh_votes(self):
-        return [dv[0] for dv in self.fresh_votes]
+    def get_all_fresh(self):
+        response = {}
+        for c in self.candidate_data:
+            response[c] = self.get_fresh_votes(c)
+        return response
 
-    def get_fresh_votes_commitments(self):
-        return [dv[1] for dv in self.fresh_votes]
+    def get_fresh_votes(self, label):
+        return [dv[0] for dv in self.candidate_data[label]['fresh']]
+
+    def get_all_fresh_commitments(self):
+        response = {}
+        for c in self.candidate_data:
+            response[c] = self.get_fresh_commitments(c)
+        return response
+
+    def get_fresh_commitments(self, label):
+        return [dv[1] for dv in self.candidate_data[label]['fresh']]
 
     def get_ballots(self):
         return self.ballots
@@ -202,7 +213,7 @@ class PedersenBVM:
 
     def _number_is_already_used(self, new_number):
         for cnd in self.candidate_data:
-            cnd_dv = [dv[0] for dv in self.candidate_data[cnd]['dummy_votes']]
+            cnd_dv = [dv[0] for dv in self.candidate_data[cnd]['dummy']]
             if new_number in cnd_dv:
                 return True
         return False
@@ -212,14 +223,14 @@ class PedersenBVM:
         return (vote, c, r)
 
     def _pick_random_dummy_vote(self, label):
-        idx = [i for i in range(len(self.candidate_data[label]['dummy_votes']))]
+        idx = [i for i in range(len(self.candidate_data[label]['dummy']))]
         r = random.SystemRandom()
         r.shuffle(idx)
         for i in idx:
-            dv = self.candidate_data[label]['dummy_votes'][i]
+            dv = self.candidate_data[label]['dummy'][i]
             if dv[3] is self.UNUSED:
-                self.candidate_data[label]['dummy_votes'][i] = (*dv[:-1], self.USED)
-                return dv[1]
+                self.candidate_data[label]['dummy'][i] = (*dv[:-1], self.USED)
+                return dv[0]
         raise IndexError('All dummy votes taken')
 
     def _generate_dummy_votes(self):
@@ -238,11 +249,12 @@ class PedersenBVM:
             label = label.upper()
             label = label.replace(' ', '-')
             candidate_data[label] = {}
-            candidate_data[label]['dummy_votes'] = []
+            candidate_data[label]['dummy'] = []
+            candidate_data[label]['fresh'] = []
             for _ in range(self.num_of_voters):
                 random.shuffle(unused_dummy_votes)
                 dv = unused_dummy_votes.pop()
-                candidate_data[label]['dummy_votes'].append((*self._commit_vote(dv), self.UNUSED))
+                candidate_data[label]['dummy'].append((*self._commit_vote(dv), self.UNUSED))
         return candidate_data
 
     def _sort_ballot_by_id(self):
