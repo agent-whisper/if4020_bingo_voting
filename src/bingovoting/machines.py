@@ -12,11 +12,11 @@ class PedersenBVM:
     INVALID_DUMMY_TYPE = lambda self, x: 'Valid type is "used" or "unused"; received: ' + str(x)
 
     def __init__(self, config):
-        security = config['security']
+        self.security_level = config['security']
         self.num_of_voters = config['num_of_voters']
         self.num_of_candidates = len(config['candidate_labels'])
         self.num_of_dummy_votes = self.num_of_voters * self.num_of_candidates
-        self.param = Pedersen.generate_param(security)
+        self.param = Pedersen.generate_param(self.security_level)
         self._generate_dummy_votes()
         self.candidate_data = self._setup_candidates(config['candidate_labels'])
         self.ballots = []
@@ -206,9 +206,9 @@ class PedersenBVM:
         return self.num_of_voters == self.num_of_received_votes
 
     def _generate_fresh_random_number(self):
-        new_number = number.getRandomRange(1, 5*self.num_of_dummy_votes)
+        new_number = number.getRandomRange(1, self.security_level*self.num_of_dummy_votes)
         while (self._number_is_already_used(new_number)):
-            new_number = number.getRandomRange(1, 5*self.num_of_dummy_votes)
+            new_number = number.getRandomRange(1, self.security_level*self.num_of_dummy_votes)
         return new_number
 
     def _number_is_already_used(self, new_number):
@@ -236,9 +236,9 @@ class PedersenBVM:
     def _generate_dummy_votes(self):
         dummy_votes = []
         for _ in range(self.num_of_dummy_votes):
-            new_dummy = number.getRandomRange(1, 5*self.num_of_dummy_votes)
+            new_dummy = number.getRandomRange(1, self.security_level*self.num_of_dummy_votes)
             while new_dummy in dummy_votes:
-                new_dummy = number.getRandomRange(1, 5*self.num_of_dummy_votes)
+                new_dummy = number.getRandomRange(1, self.security_level*self.num_of_dummy_votes)
             dummy_votes.append(new_dummy)
         return dummy_votes
 
