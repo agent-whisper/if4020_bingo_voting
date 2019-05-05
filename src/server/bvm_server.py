@@ -62,7 +62,7 @@ def get_all_candidate_dummy_votes(status):
 
 @server.route('/candidates/commitments/')
 def get_all_unused_dummy_commitments():
-    response = bvm_machine.get_all_candidate_commitments()
+    response = bvm_machine.get_all_dummy_commitments()
     return json.dumps({
         'data': response,
         'status': OK,
@@ -70,7 +70,7 @@ def get_all_unused_dummy_commitments():
 
 @server.route('/candidates/commitments/<string:status>')
 def get_all_dummy_commitments(status):
-    response = bvm_machine.get_all_candidate_commitments(status)
+    response = bvm_machine.get_all_dummy_commitments(status)
     return json.dumps({
         'data': response,
         'status': OK,
@@ -79,7 +79,7 @@ def get_all_dummy_commitments(status):
 @server.route('/candidates/<string:label>/')
 def get_candidate_data(label):
     try:
-        data = bvm_machine.get_candidate_vote_and_commit(label)
+        data = bvm_machine.get_candidate_dummies(label)
     except ValueError as e:
         return json.dumps({
             'status': NOT_FOUND,
@@ -126,7 +126,7 @@ def get_candidate_dummy_votes(label, status):
 @server.route('/candidates/<string:label>/dummy_commitments/')
 def get_all_candidate_commitments(label):
     try:
-        data = bvm_machine.get_candidate_commitments(label)
+        data = bvm_machine.get_dummy_commitments(label)
     except ValueError as e:
         return json.dumps({
             'status': NOT_FOUND,
@@ -142,7 +142,7 @@ def get_all_candidate_commitments(label):
 @server.route('/candidates/<string:label>/commitments/<string:status>')
 def get_used_candidate_commitments(label, status):
     try:
-        data = bvm_machine.get_candidate_commitments(label, status)
+        data = bvm_machine.get_dummy_commitments(label, status)
     except ValueError as e:
         return json.dumps({
             'status': NOT_FOUND,
@@ -157,7 +157,7 @@ def get_used_candidate_commitments(label, status):
 
 @server.route('/fresh_votes/')
 def get_fresh_votes():
-    data = bvm_machine.get_fresh_votes()
+    data = bvm_machine.get_all_fresh()
     return json.dumps({
         'data': data,
         'count': len(data),
@@ -166,7 +166,7 @@ def get_fresh_votes():
 
 @server.route('/fresh_votes/commitments/')
 def get_fresh_votes_commitments():
-    data = bvm_machine.get_fresh_votes_commitments()
+    data = bvm_machine.get_all_fresh_commitments()
     return json.dumps({
         'data': data,
         'count': len(data),
