@@ -34,6 +34,15 @@ def ping():
         'description': 'BVM server is running',
     })
 
+@server.route('/candidates/')
+def get_complete_candidate_data():
+    data = bvm_machine.get_candidate_data()
+    return json.dumps({
+        'data': data,
+        'count': len(data),
+        'status': OK
+    })
+
 @server.route('/candidates/labels/')
 def get_candidate_labels():
     data = bvm_machine.get_candidate_labels()
@@ -232,5 +241,13 @@ def get_poll_result():
         'data': data,
         'received_vote_count': vote_collected,
         'registered_voter_count': registered_voter,
+        'status': OK,
+    })
+
+@server.route('/poll/result/unused_dummies/')
+def publish_unused_dummy_votes():
+    data = bvm_machine.publish_unused_dummy()
+    return json.dumps({
+        'data': data,
         'status': OK,
     })
