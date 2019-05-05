@@ -1,0 +1,11 @@
+<title>Bingo Voting Booth</title>
+<body>
+    <h1>Voting Forms</h1>
+    <h2>Candidates:</h2>
+    <form action={{send_vote_uri}} method="POST">
+        {% for cl in candidate_labels %}
+        <input name="pick" type="radio" value={{cl}}>{{cl}}<br>
+        {% endfor %}
+        <button type="submit">Send</button>
+    </form>
+</body>

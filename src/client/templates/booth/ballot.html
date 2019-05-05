@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<title>Bingo Voting Booth</title>
+<body>
+    <h1>Vote Response</h1>
+    {% if accepted == true %}
+        <h2>Ballot no. {{id}}</h2>
+        <div id="ballot">
+            {% for label, commitment in ballot_data.items() %}
+                <ul>
+                    <li>{{label}}: {{commitment}}</li>
+                </ul>
+            {% endfor %}
+        </div>
+    {% else %}
+        <h2>Vote is full</h2>
+    {% endif %}
+    <form action={{home_uri}}>
+        <button type="submit">Finish</button>
+    </form>
+</body>
