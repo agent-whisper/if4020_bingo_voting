@@ -60,8 +60,16 @@ def get_all_candidate_dummy_votes(status):
     })
 
 @server.route('/candidates/commitments/')
-def get_all_unused_candidate_commitments():
+def get_all_unused_dummy_commitments():
     response = bvm_machine.get_all_candidate_commitments()
+    return json.dumps({
+        'data': response,
+        'status': OK,
+    })
+
+@server.route('/candidates/commitments/<string:status>')
+def get_all_dummy_commitments(status):
+    response = bvm_machine.get_all_candidate_commitments(status)
     return json.dumps({
         'data': response,
         'status': OK,
