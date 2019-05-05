@@ -143,7 +143,10 @@ def vote():
             'status': NOT_FOUND,
             'description': str(e),
         })
-    return json.dumps(vote_response)
+    return json.dumps({
+        'data': vote_response,
+        'status': OK,
+    })
 
 @server.route('/vote/verify', methods=['POST'])
 def verify_vote():
