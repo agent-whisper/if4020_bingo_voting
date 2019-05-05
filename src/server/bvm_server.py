@@ -27,6 +27,13 @@ bvm_machine = PedersenBVM(config['bvm'])
 def index():
     return 'It works!'
 
+@server.route('/status')
+def ping():
+    return json.dumps({
+        'status': OK,
+        'description': 'BVM server is running',
+    })
+
 @server.route('/candidates/labels/')
 def get_candidate_labels():
     data = bvm_machine.get_candidate_labels()
@@ -34,6 +41,30 @@ def get_candidate_labels():
         'data': data,
         'count': len(data),
         'status': OK
+    })
+
+@server.route('/candidates/dummy_votes/')
+def get_all_unused_candidate_dummy_votes():
+    response = bvm_machine.get_all_dummy_votes()
+    return json.dumps({
+        'data': response,
+        'status': OK,
+    })
+
+@server.route('/candidates/dummy_votes/<string:status>')
+def get_all_candidate_dummy_votes(status):
+    response = bvm_machine.get_all_dummy_votes(status)
+    return json.dumps({
+        'data': response,
+        'status': OK,
+    })
+
+@server.route('/candidates/commitments/')
+def get_all_unused_candidate_commitments():
+    response = bvm_machine.get_all_candidate_commitments()
+    return json.dumps({
+        'data': response,
+        'status': OK,
     })
 
 @server.route('/candidates/<string:label>/')
@@ -52,9 +83,9 @@ def get_candidate_data(label):
     })
 
 @server.route('/candidates/<string:label>/dummy_votes/')
-def get_candidate_dummy_votes(label):
+def get_unused_candidate_dummy_votes(label):
     try:
-        data = bvm_machine.get_candidate_dummy_vote(label)
+        data = bvm_machine.get_candidate_dummy_votes(label)
     except ValueError as e:
         return json.dumps({
             'status': NOT_FOUND,
@@ -68,7 +99,7 @@ def get_candidate_dummy_votes(label):
     })
 
 @server.route('/candidates/<string:label>/dummy_votes/<string:status>')
-def get_used_candidate_dummy_votes(label, status):
+def get_candidate_dummy_votes(label, status):
     try:
         data = bvm_machine.get_candidate_dummy_vote(label, status)
     except ValueError as e:
