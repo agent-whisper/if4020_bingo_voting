@@ -10,8 +10,13 @@ class PedersenBoard:
     BALLOTS_URI = '/ballots/'
 
     def __init__(self, config):
+        self.config = {
+            'ip': config['client_ip'],
+            'port': config['client_port'],
+            'protocol': ('https' if config['client_protocol']=='https' else 'http'),
+        }
         self.bvm_server_config = {
-            'protocol': ('https' if config['protocol']=='https' else 'http'),
+            'protocol': ('https' if config['server_protocol']=='https' else 'http'),
             'ip': config['server_ip'],
             'port': config['server_port'],
         }
@@ -39,6 +44,12 @@ class PedersenBoard:
     def get_ballots(self):
         response = requests.get(self._bvm_uri(self.BALLOTS_URI))
         return response.json()
+
+    def get_own_uri(self):
+        protocol = self.config['protocol']
+        ip = self.config['ip']
+        port = self.config['port']
+        return '{}://{}:{}'.format(protocol, ip, port)
 
     def _bvm_uri(self, uri_type=''):
         protocol = self.bvm_server_config['protocol']
