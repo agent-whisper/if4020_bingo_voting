@@ -3,7 +3,7 @@ from requests.exceptions import ConnectionError
 
 class PedersenBooth:
     CANDIDATE_LABEL_URI = '/candidates/labels'
-    SEND_VOTE = '/vote/collect'
+    SEND_VOTE_URI = '/vote/collect'
 
     def __init__(self, config):
         self.bvm_server_config = {
@@ -14,7 +14,7 @@ class PedersenBooth:
         try:
             self.candidate_labels = self._init_candidate_labels()
         except ConnectionError:
-            raise ConnectionError('Cannot connect to server at', self._bvm_uri())
+            raise ConnectionError('[BVM Booth] Cannot connect to bvm server at', self._bvm_uri())
 
     def get_candidate_labels(self):
         return self.candidate_labels
@@ -22,7 +22,7 @@ class PedersenBooth:
     def send_vote(self, picked_candidate):
         encrypted_vote = picked_candidate
         data = {'pick': encrypted_vote}
-        response = requests.post(self._bvm_uri(self.SEND_VOTE), data)
+        response = requests.post(self._bvm_uri(self.SEND_VOTE_URI), data)
         return response.json()
 
     def _bvm_uri(self, uri_type=''):
