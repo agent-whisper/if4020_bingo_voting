@@ -150,6 +150,15 @@ class PedersenBVM:
 
     def get_ballots(self):
         return self.ballots
+    
+    def get_ballot_by_id(self, id):
+        if id < 1 or id > len(self.ballots):
+            raise ValueError('ID value out of range (received {})'.format(id))
+        for bl in self.ballots:
+            if bl['id'] == id:
+                return bl
+        else:
+            return None
 
     def get_vote_count(self):
         return (self.num_of_received_votes, self.num_of_voters)
