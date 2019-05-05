@@ -101,7 +101,7 @@ def get_unused_candidate_dummy_votes(label):
 @server.route('/candidates/<string:label>/dummy_votes/<string:status>')
 def get_candidate_dummy_votes(label, status):
     try:
-        data = bvm_machine.get_candidate_dummy_vote(label, status)
+        data = bvm_machine.get_candidate_dummy_votes(label, status)
     except ValueError as e:
         return json.dumps({
             'status': NOT_FOUND,
@@ -166,12 +166,17 @@ def get_fresh_votes_commitments():
 
 @server.route('/vote/collect', methods=['POST'])
 def vote():
-    picked_candidate = flask.request.form['pick']
     try:
+        picked_candidate = flask.request.form['pick']
         vote_response = bvm_machine.vote(picked_candidate)
     except ValueError as e:
         return json.dumps({
             'status': NOT_FOUND,
+            'description': str(e),
+        })
+    except KeyError as e:
+        return json.dumps({
+            'status': BAD_REQUEST,
             'description': str(e),
         })
     return json.dumps({
